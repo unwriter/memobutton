@@ -77,6 +77,9 @@ a.outlink {
   border-bottom: 1px solid rgba(0,0,0,0.1);
   padding-bottom: 10px;
 }
+.center {
+  text-align: center;
+}
 </style>
 <script src="https://api.moneybutton.com/moneybutton.js"></script>
 <script src='https://unpkg.com/datacash'></script>
@@ -146,6 +149,13 @@ document.addEventListener("DOMContentLoaded", function() {
       MemoButton
       <small>Post to memo.cash with <a href='https://moneybutton.com'>moneybutton</a></small>
     </h1>
+    <hr>
+    <div class='center'>
+      Powered by:
+      <a href='https://moneybutton.com'>Moneybutton</a> + 
+      <a href='https://memo.cash/protocol'>Memo.cash</a> + 
+      <a href='https://bitdb.network'>BitDB</a>
+    </div>
     <hr>
     <div class='form'>
       <textarea id='msg' placeholder='Enter text to post to memo.cash from moneybutton'></textarea>
