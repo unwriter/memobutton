@@ -1,0 +1,247 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width">
+
+<!-- meta -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:creator" content="@_unwriter" />
+<meta name="twitter:title" content="MemoButton" />
+<meta name="twitter:description" content="Post to memo.cash with Moneybutton!" />
+<meta name="twitter:image" content="https://unwriter.github.io/memobutton/btn.png" />
+<meta property="og:url" content="https://unwriter.github.io/memobutton" />
+<meta property="og:type"   content="website" />
+<meta property="og:title" content="MemoButton" />
+<meta property="og:description" content="Post to memo.cash with Moneybutton!" />
+<meta property="og:image" content="https://unwriter.github.io/memobutton/btn.png" />
+
+<style>
+body {
+  font-family: "Helvetica Neue", helvetica, arial;
+  padding: 50px;
+  font-size: 14px;
+  color: rgba(0,0,0,0.8);
+}
+hr {
+  margin: 20px 0;
+  border: none;
+  background: rgba(0,0,0,0.1);
+  height: 1px;
+}
+h1 {
+  color: #4772F6;
+  text-align: center;
+  font-weight: 900;
+  font-size: 40px;
+}
+h1 > small {
+  font-size: 12px;
+  display: block;
+  font-weight: 400;
+}
+h2 {
+  background: rgba(0,0,0,0.04);
+  font-size: 20px;
+  color: rgba(0,0,0,0.8);
+}
+h1, h2 {
+  padding: 10px;
+  font-weight: 700;
+  margin: 0;
+}
+.btn {
+  background: #4772F6;
+  color: white;
+  display: block;
+  text-align: center;
+  padding: 10px;
+}
+.container {
+  margin:0 auto;
+  width: 400px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  -ms-word-break: break-all;
+  word-break: break-word;
+}
+.form textarea {
+  padding: 10px;
+  width: 100%;
+  font-size: 14px;
+}
+.form input[type=text] {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+.hidden {
+  display: none;
+}
+#submit {
+  font-size: 12px;
+  text-align: center;
+}
+#submit > * {
+  margin: 10px;
+}
+.feed {
+  width: 100%;
+}
+a.outlink {
+  padding: 5px;
+  text-align: right;
+  display: block;
+  color: #F97467;
+}
+a#home {
+  text-decoration: none;
+}
+.row {
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  padding-bottom: 10px;
+  padding-top: 10px;
+}
+.center {
+  text-align: center;
+}
+.msg {
+  margin-top: 5px;
+}
+.topic {
+  background: gray;
+  color: white;
+  padding: 2px 5px;
+  border-radius: 2px;
+  display: inline-block;
+  font-size: 12px;
+}
+</style>
+<script src="https://api.moneybutton.com/moneybutton.js"></script>
+<script src='https://unpkg.com/datacash'></script>
+<script src='https://unpkg.com/databutton'></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.12/handlebars.min.js"></script>
+<script id="template" type="text/x-handlebars-template">
+  {{#each items}}
+    <div class='row'>
+      {{#if topic}}
+        <a class='topic' href='#topic={{topic}}'>{{topic}}</a>
+      {{/if}}
+      <div class='msg'>{{message}}</div>
+      <a target='_blank' class='outlink' href='https://memo.cash/post/{{tx}}'>view on memo</a>
+    </div>
+  {{/each}}
+</script>
+<script>
+var source   = document.getElementById("template").innerHTML;
+var template = Handlebars.compile(source);
+var query = {
+  v: 3,
+  q: {
+    find: {
+      "out.h1": {
+        "$in": ["6d02", "6d0c"]
+      }
+    }
+  },
+  r: {
+    f: "[ .[] | .tx.h as $tx | .out[] | select(.b0.op and .b0.op == 106) | (if .h1 == \"6d02\" then { message: .s2 } else { tx: $tx, topic: .s2, message: .s3 } end)]"
+  }
+}
+var feed = function(uri) {
+  console.log("rendering feed")
+  var header = { headers: { key: "qqjtyk2qmphm4d2ddqfeg855we2u4ly7m59a0tuenn" } };
+  fetch(uri, header).then(function(r) {
+    return r.json()
+  }).then(function(r) {
+    var unconfirmed_feed = template({items: r.u})
+    var confirmed_feed = template({items: r.c})
+    document.querySelector(".feed").innerHTML = "<hr><h2>" + r.u.length + " Unconfirmed</h2><br>" + unconfirmed_feed + "<h2>" + r.c.length + " Confirmed</h2><br>" + confirmed_feed;
+  })
+}
+document.addEventListener("DOMContentLoaded", function() {
+
+  // check topic
+  if (document.location.hash.length > 0) {
+    let hash = document.location.hash.slice(1) 
+    if (/^topic=.*$/.test(hash)) {
+      var topic = hash.split("=")[1]
+      console.log(topic)
+      query.q.find["out.s2"] = topic
+    }
+  }
+  // Link handling
+  document.querySelector("#home").addEventListener("click", function(e) {
+    window.location.reload();
+  })
+  document.querySelector(".feed").addEventListener("click", function(e) {
+    console.log(e.target)
+    if (e.target.className === 'topic') {
+      window.location.reload();
+    }
+  })
+
+  // URL construction
+  var b64 = btoa(JSON.stringify(query));
+  var uri = "https://bitdb.network/q/" + b64;
+
+  // Read: Pull
+  feed(uri)
+
+  // Read: Push
+  var bitsocket = new EventSource('https://bitsocket.org/s/'+b64)
+  bitsocket.onmessage = function(e) {
+    console.log(e)
+    feed(uri)
+  }
+
+  // Write
+  document.querySelector("#done").addEventListener("click", function(e) {
+    document.querySelector("#submit").classList.remove('hidden')
+    let topic = document.querySelector("#topic").value.trim();
+    let message = document.querySelector("#msg").value
+    databutton.build({
+      data: (topic.length > 0 ? ["0x6d0c", topic, message] : ["0x6d02", message]),
+      button: {
+        $el: "#button",
+        label: "Slide to Post!",
+        onPayment: function(e) {
+          console.log("paid!", e)
+          setTimeout(function() {
+            feed(uri)
+          }, 1000)
+        }
+      }
+    })
+  })
+})
+</script>
+</head>
+<body>
+  <div class='container'>
+    <h1>
+       <a href="#" id='home'>MemoButton</a>
+      <small>Post to memo.cash with moneybutton</small>
+    </h1>
+    <hr>
+    <div class='center'>
+      Powered by:
+      <a href='https://moneybutton.com'>Moneybutton</a> + 
+      <a href='https://memo.cash/protocol'>Memo.cash</a> + 
+      <a href='https://bitdb.network'>BitDB</a>
+    </div>
+    <hr>
+    <div class='form'>
+      <input type='text' id='topic' placeholder='enter topic (only if you want a topic post)'>
+      <textarea id='msg' placeholder='Enter text to post to memo.cash from moneybutton'></textarea>
+      <a href='#' id='done' class='btn'>Done</a>
+      <div id='submit' class='hidden'>
+        <hr>
+        <div >Press the money button to post to memo.cash!</div>
+        <div id='button'></div>
+      </div>
+    </div>
+    <div class='feed'>
+    </div>
+  </div>
+</body>
+</html>
