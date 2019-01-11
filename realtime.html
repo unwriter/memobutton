@@ -96,7 +96,7 @@ a.outlink {
 }
 </style>
 <script src="https://api.moneybutton.com/moneybutton.js"></script>
-<script src='https://unpkg.com/datacash'></script>
+<script src='https://unpkg.com/datapay'></script>
 <script src='https://unpkg.com/databutton'></script>
 <script>
 var feed = function(uri) {
@@ -132,11 +132,11 @@ document.addEventListener("DOMContentLoaded", function() {
   // Pull
   var query = { v: 3, q: { find: { "out.h1": "6d02" } } }
   var b64 = btoa(JSON.stringify(query));
-  var uri = "https://bitdb.network/q/" + b64;
+  var uri = "https://bitgraph.network/q/" + b64;
   feed(uri)
 
   // Push
-  var bitsocket = new EventSource('https://bitsocket.org/s/'+b64)
+  var bitsocket = new EventSource('https://bitgraph.network/s/'+b64)
   bitsocket.onmessage = function(e) {
     feed(uri)
   }

@@ -117,7 +117,7 @@ a#home {
 }
 </style>
 <script src="https://api.moneybutton.com/moneybutton.js"></script>
-<script src='https://unpkg.com/datacash'></script>
+<script src='https://unpkg.com/datapay'></script>
 <script src='https://unpkg.com/databutton'></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.12/handlebars.min.js"></script>
 <script id="template" type="text/x-handlebars-template">
@@ -182,13 +182,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
   // URL construction
   var b64 = btoa(JSON.stringify(query));
-  var uri = "https://bitdb.network/q/" + b64;
+  var uri = "https://bitgraph.network/q/" + b64;
 
   // Read: Pull
   feed(uri)
 
   // Read: Push
-  var bitsocket = new EventSource('https://bitsocket.org/s/'+b64)
+  var bitsocket = new EventSource('https://bitgraph.network/s/'+b64)
   bitsocket.onmessage = function(e) {
     console.log(e)
     feed(uri)

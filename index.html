@@ -96,7 +96,7 @@ a.outlink {
 }
 </style>
 <script src="https://api.moneybutton.com/moneybutton.js"></script>
-<script src='https://unpkg.com/datacash'></script>
+<script src='https://unpkg.com/datapay'></script>
 <script src='https://unpkg.com/databutton'></script>
 <script>
 var feed = function() {
@@ -106,7 +106,7 @@ var feed = function() {
     q: { find: { "out.h1": "6d02" } }
   };
   var b64 = btoa(JSON.stringify(query));
-  var url = "https://bitdb.network/q/" + b64;
+  var url = "https://bitgraph.network/q/" + b64;
 
   var header = { headers: { key: "qqjtyk2qmphm4d2ddqfeg855we2u4ly7m59a0tuenn" } };
 
